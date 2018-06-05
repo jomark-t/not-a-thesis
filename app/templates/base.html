@@ -1,0 +1,18 @@
+<html>
+    <head>
+    	{% if title %}
+       	<title>{{ title }} - Thesis</title>
+    	{% else %}
+    	<title>Welcome to NOCS</title>
+    	{% endif %}
+    </head>
+    <body>
+        <div>
+            NOCS: 
+            <a href="/index"> Home </a>
+            <a href="/login"> Login </a>
+        </div>
+        <hr>
+        {% block content %} {% endblock %}
+    </body>
+</html>
