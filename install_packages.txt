@@ -7,3 +7,5 @@ pip install pyjwt
 pip install flask-mail
 pip install flask-bootstrap
 pip install flask-moment
+pip install guess-language_spirit
+pip install flask-babel

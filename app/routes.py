@@ -13,7 +13,10 @@ from app.email import send_password_reset_email
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user)
+        language = guess_language(form.post.data)
+        if language == 'UNKNOWN' or len(language) > 5:
+            language = ''
+        post = Post(body=form.post.data, author=current_user, language=language)
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
@@ -51,13 +54,23 @@ def logout():
 	logout_user()
 	return redirect(url_for('index'))
 
+@app.route('/sensor')
+@login_required
+def sensor():
+    return render_template('sensor.html', title='Sensor')
+
+@app.route('/csv')
+@login_required
+def csv():
+    return render_template('csv.html', title='Sensor')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(username=form.username.data, email=form.email.data, name=form.name.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
