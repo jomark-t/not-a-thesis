@@ -3,3 +3,7 @@ pip install forms-wtf
 pip install flask-sqlalchemy
 pip install flask-migrate
 pip install flask-login
+pip install pyjwt
+pip install flask-mail
+pip install flask-bootstrap
+pip install flask-moment
