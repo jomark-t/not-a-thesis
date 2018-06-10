@@ -83,6 +83,15 @@ class Post(db.Model):
 		return '<Post {}>'.format(self.body)
 
 
+class SensorThreshold(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	temp = db.Column(db.String(140))
+	smoke = db.Column(db.String(140))
+	water = db.Column(db.String(140))
+
+	def __repr__(self):
+		return '<Threshold (T/S/W) {}/{}/{}>'.format(self.temp, self.smoke, self.water)
+
 @login.user_loader
 def load_user(id):
 	return User.query.get(int(id))

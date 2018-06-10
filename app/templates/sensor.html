@@ -1,3 +1,104 @@
 {% extends "base.html" %}
+{% block content %}
+    <script type="text/javascript" src="{{ url_for('static', filename = 'Chart.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'jquery-3.3.1.min.js') }}"></script>
+    <div class="row">
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-10">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="alert alert-info" role="alert"><strong>Temperature and Humidity</strong>
+                    </div>
+                    <span class="label label-success">Sensor 1</span> 
+                    {% for dict in temp_list[::-1] %} 
+                        {% for key, value in dict.items() if loop.first %}
+                          {% if key == 'temp' %}
+                            Temperature: <b>{{ value }}</b>
+                          {% elif key == 'humid' %}
+                            Humidity: <b>{{ value }} </b>
+                          {% endif %}
+                        {% endfor %} 
+                    {% endfor %}
+                    <br>
+                    <span class="label label-success">Sensor 2</span> Temperature: <b>99</b> Humidity: <b>99</b>
+                    <br>
+                    <span class="label label-danger">Sensor 3</span> Temperature: 0 Humidity: 0
 
-Sensor
+                    <hr>
+                    {% for result in temp_list[::-1] %}
+                        {{ result['temp'] }} {{ result['humid'] }} {{ result['t_time'] }} <br/>
+                    {% endfor %}
+                </div>
+                <div class="col-md-4">  
+                    <div class="alert alert-info" role="alert"><strong>Water Sensor</strong></div>
+                    <div class="chart-container" style="position: relative; height:8vh; width:25vw">
+                        <canvas id="chart"></canvas>
+                    </div>
+                
+                </div>
+                <div class="col-md-4">
+                    <div class="alert alert-info" role="alert"><strong>Smoke Sensor</strong></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1">
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        /*$(function() {
+            var since = 0;
+            setInterval(function() {
+                $.ajax('{{ url_for('sensor') }}').done(
+                    function() {
+                        $("#chart").load("/sensor", function() {  console.log( "Load was performed." ); });
+                    }
+                );
+            }, 10000);
+        });*/
+
+        //$(document).ready(function() {
+            //setInterval("ajaxd()",10000); // call every 10 seconds
+        //});
+
+        //function ajaxd() { 
+          //reload result into element with id "sysStatus"
+        //  $("#chart").load("/sensor", function() {  console.log( "Load was performed." ); });
+
+        //}
+
+        var mychart = document.getElementById("chart").getContext("2d");
+
+        new Chart(mychart, {
+           type: 'line',
+           labels: 'temp',
+           data: {
+              labels: [{% for item in labels %}
+                            "{{item}}",
+                       {% endfor %}],
+              datasets: [{
+                 data: [{% for item in values %}
+                            {{item}}, 
+                        {% endfor %}],
+                 backgroundColor: 'rgba(151,187,205,0.2)',
+                 borderColor: 'rgba(151,187,205,1)',
+                 pointBackgroundColor: 'rgba(151,187,205,1)'
+              }]
+           },
+           options: {
+              scales: {
+                 yAxes: [{
+                    ticks: {
+                       beginAtZero: true
+                    }
+                 }]
+              },
+              legend: {
+                display: false
+              }
+           }
+        });
+    </script>
+{% endblock %}

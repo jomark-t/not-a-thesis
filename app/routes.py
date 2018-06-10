@@ -6,6 +6,14 @@ from app.models import User, Post
 from werkzeug.urls import url_parse
 from datetime import datetime
 from app.email import send_password_reset_email
+from csv import DictReader
+from collections import OrderedDict
+import os
+
+
+def get_csv():
+    file = open(os.path.join(app.config['DATA_DIR'], 'temp.csv'), 'r')
+    return list(DictReader(file, fieldnames=None))
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -13,10 +21,10 @@ from app.email import send_password_reset_email
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        language = guess_language(form.post.data)
-        if language == 'UNKNOWN' or len(language) > 5:
-            language = ''
-        post = Post(body=form.post.data, author=current_user, language=language)
+        #language = guess_language(form.post.data)
+        #if language == 'UNKNOWN' or len(language) > 5:
+        #    language = ''
+        post = Post(body=form.post.data, author=current_user)
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
@@ -57,7 +65,17 @@ def logout():
 @app.route('/sensor')
 @login_required
 def sensor():
-    return render_template('sensor.html', title='Sensor')
+    temp_list = get_csv()
+    labels = ["January","February","March","April","May","June","July","August"]
+    values = [10,9,8,7,6,4,7,8]
+
+    temp_labels = []
+    temp_values = []
+    for result in temp_list:
+        temp_values.append(result['temp'])
+        temp_labels.append(result['t_time'])
+
+    return render_template('sensor.html', title='Sensor', temp_list=temp_list, values=temp_values, labels=temp_labels)
 
 @app.route('/csv')
 @login_required
