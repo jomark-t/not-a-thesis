@@ -6,10 +6,29 @@ from app.models import User, Post
 from werkzeug.urls import url_parse
 from datetime import datetime
 from app.email import send_password_reset_email
-from csv import DictReader
+from csv import DictReader, writer
 from collections import OrderedDict
 import os
+import time
+import atexit
+import random
 
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+
+def write_temp_csv():
+    temperature = random.randint(0,75)
+    timeC = time.strftime("%I")+':' +time.strftime("%M")+':'+time.strftime("%S")
+    data = [temperature, timeC]
+
+    #os.chmod(app.config['DATA_DIR'], 777)
+    #file_path = os.path.join(app.config['DATA_DIR'], 'temp_1.csv')
+    #print(file_path)
+    with open('C:/Users/jtandog/Desktop/WORKSPACE/00_GITHUB/not-a-thesis/app/data/temp_1.csv', 'a') as output:
+        writer = csv.writer(output, delimiter=",", lineterminator = '\n')
+        writer.writerow(data)
+
+    #print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
 
 def get_csv():
     file = open(os.path.join(app.config['DATA_DIR'], 'temp.csv'), 'r')
@@ -202,3 +221,15 @@ def reset_password(token):
         flash('Your password has been reset.')
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
+
+
+scheduler = BackgroundScheduler()
+scheduler.start()
+scheduler.add_job(
+    func=write_temp_csv,
+    trigger=IntervalTrigger(seconds=5),
+    id='printing_job',
+    name='Print date and time every five seconds',
+    replace_existing=True)
+# Shut down the scheduler when exiting the app
+atexit.register(lambda: scheduler.shutdown())
