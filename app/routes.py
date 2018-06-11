@@ -6,33 +6,46 @@ from app.models import User, Post
 from werkzeug.urls import url_parse
 from datetime import datetime
 from app.email import send_password_reset_email
-from csv import DictReader, writer
 from collections import OrderedDict
 import os
 import time
 import atexit
 import random
+import csv
+import sys
+import Adafruit_DHT
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
+def get_temp_humid():
+    humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, '4')
+    if humidity is not None and temperature is not None:
+        temperature = "{0:0.1f}".format(temperature)
+        humidity = "{0:0.1f}".format(humidity)
+        #print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
+        return temperature, humidity
+    else:
+        return 0, 0
+    
+
 def write_temp_csv():
-    temperature = random.randint(0,75)
+    temperature, humidity = get_temp_humid()
     timeC = time.strftime("%I")+':' +time.strftime("%M")+':'+time.strftime("%S")
-    data = [temperature, timeC]
+    data = [temperature, humidity, timeC]
 
     #os.chmod(app.config['DATA_DIR'], 777)
-    #file_path = os.path.join(app.config['DATA_DIR'], 'temp_1.csv')
+    file_path = os.path.join(app.config['DATA_DIR'], 'temp_1.csv')
     #print(file_path)
-    with open('C:/Users/jtandog/Desktop/WORKSPACE/00_GITHUB/not-a-thesis/app/data/temp_1.csv', 'a') as output:
-        writer = csv.writer(output, delimiter=",", lineterminator = '\n')
-        writer.writerow(data)
+    with open(file_path, 'a') as output:
+        writer_csv = csv.writer(output, delimiter=",", lineterminator = '\n')
+        writer_csv.writerow(data)
 
     #print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
 
 def get_csv():
     file = open(os.path.join(app.config['DATA_DIR'], 'temp.csv'), 'r')
-    return list(DictReader(file, fieldnames=None))
+    return list(csv.DictReader(file, fieldnames=None))
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -98,7 +111,7 @@ def sensor():
 
 @app.route('/csv')
 @login_required
-def csv():
+def csv_page():
     return render_template('csv.html', title='Sensor')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -228,8 +241,8 @@ scheduler.start()
 scheduler.add_job(
     func=write_temp_csv,
     trigger=IntervalTrigger(seconds=5),
-    id='printing_job',
-    name='Print date and time every five seconds',
+    id='temp_1_job',
+    name='Reading temp on pin 4.',
     replace_existing=True)
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: scheduler.shutdown())
