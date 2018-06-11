@@ -92,6 +92,15 @@ class SensorThreshold(db.Model):
 	def __repr__(self):
 		return '<Threshold (T/S/W) {}/{}/{}>'.format(self.temp, self.smoke, self.water)
 
+class CSV(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	filename = db.Column(db.String(140))
+	sensor_type = db.Column(db.String(140))
+	timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+	def __repr__(self):
+		return '<File {}>'.format(self.filename)
+
 @login.user_loader
 def load_user(id):
 	return User.query.get(int(id))

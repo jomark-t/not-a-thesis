@@ -10,31 +10,50 @@
                 <div class="col-md-4">
                     <div class="alert alert-info" role="alert"><strong>Temperature and Humidity</strong>
                     </div>
-                    <span class="label label-success">Sensor 1</span> 
-                    {% for dict in temp_list[::-1] %} 
-                        {% for key, value in dict.items() if loop.first %}
-                          {% if key == 'temp' %}
-                            Temperature: <b>{{ value }}</b>
-                          {% elif key == 'humid' %}
-                            Humidity: <b>{{ value }} </b>
-                          {% endif %}
-                        {% endfor %} 
-                    {% endfor %}
+                    {% if s1_cur_temp == '0.0' %}
+                        <span class="label label-danger">Sensor 1</span> 
+                    {% else %}
+                        <span class="label label-success">Sensor 1</span> 
+                    {% endif %}
+                    Temperature: <b>{{ s1_cur_temp }}</b> Humidity: <b> {{ s1_cur_humid }}</b>
                     <br>
-                    <span class="label label-success">Sensor 2</span> Temperature: <b>99</b> Humidity: <b>99</b>
                     <br>
-                    <span class="label label-danger">Sensor 3</span> Temperature: 0 Humidity: 0
+                    <div class="chart-container"> <!--style="height:8vh; width:25vw"-->
+                        <canvas id="chart_1"></canvas>
+                    </div>
 
-                    <hr>
-                    {% for result in temp_list[::-1] %}
-                        {{ result['temp'] }} {{ result['humid'] }} {{ result['t_time'] }} <br/>
-                    {% endfor %}
+                    <br>
+
+                    {% if s2_cur_temp == '0.0' %}
+                        <span class="label label-danger">Sensor 2</span> 
+                    {% else %}
+                        <span class="label label-success">Sensor 2</span> 
+                    {% endif %}
+                    Temperature: <b>{{ s2_cur_temp }}</b> Humidity: <b> {{ s2_cur_humid }}</b>
+                    <br>
+                    <br>
+                    <div class="chart-container">
+                        <canvas id="chart_2"></canvas>
+                    </div>
+
+                    <br>
+
+                    {% if s3_cur_temp == '0.0' %}
+                        <span class="label label-danger">Sensor 3</span> 
+                    {% else %}
+                        <span class="label label-success">Sensor 3</span> 
+                    {% endif %}
+                    Temperature: <b>{{ s3_cur_temp }}</b> Humidity: <b> {{ s3_cur_humid }}</b>
+                    <br>
+                    <br>
+                    <div class="chart-container">
+                        <canvas id="chart_3"></canvas>
+                    </div>
+
+                    <br>
                 </div>
                 <div class="col-md-4">  
                     <div class="alert alert-info" role="alert"><strong>Water Sensor</strong></div>
-                    <div class="chart-container" style="position: relative; height:8vh; width:25vw">
-                        <canvas id="chart"></canvas>
-                    </div>
                 
                 </div>
                 <div class="col-md-4">
@@ -69,7 +88,7 @@
 
         //}
 
-        var mychart = document.getElementById("chart").getContext("2d");
+        var mychart = document.getElementById("chart_1").getContext("2d");
 
         new Chart(mychart, {
            type: 'line',
@@ -97,6 +116,9 @@
               },
               legend: {
                 display: false
+              },
+              animation: {
+                duration: 0
               }
            }
         });

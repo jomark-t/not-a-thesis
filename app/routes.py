@@ -13,13 +13,17 @@ import atexit
 import random
 import csv
 import sys
-import Adafruit_DHT
+#import Adafruit_DHT
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-def get_temp_humid():
-    humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, '4')
+def get_temp_humid(pin):
+    if pin == '4':
+        temperature, humidity = 26, 99
+    else:
+        temperature, humidity = 0, 0
+    #humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, '4')
     if humidity is not None and temperature is not None:
         temperature = "{0:0.1f}".format(temperature)
         humidity = "{0:0.1f}".format(humidity)
@@ -98,16 +102,16 @@ def logout():
 @login_required
 def sensor():
     temp_list = get_csv()
-    labels = ["January","February","March","April","May","June","July","August"]
-    values = [10,9,8,7,6,4,7,8]
-
+    s1_temp, s1_humid = get_temp_humid('4')
+    s2_temp, s2_humid = get_temp_humid('1')
+    s3_temp, s3_humid = get_temp_humid('2')
     temp_labels = []
     temp_values = []
     for result in temp_list:
         temp_values.append(result['temp'])
         temp_labels.append(result['t_time'])
 
-    return render_template('sensor.html', title='Sensor', temp_list=temp_list, values=temp_values, labels=temp_labels)
+    return render_template('sensor.html', title='Sensor', s1_cur_temp=s1_temp, s1_cur_humid=s1_humid, s2_cur_temp=s2_temp, s2_cur_humid=s2_humid, s3_cur_temp=s3_temp, s3_cur_humid=s3_humid, values=temp_values, labels=temp_labels)
 
 @app.route('/csv')
 @login_required
@@ -236,13 +240,13 @@ def reset_password(token):
     return render_template('reset_password.html', form=form)
 
 
-scheduler = BackgroundScheduler()
-scheduler.start()
-scheduler.add_job(
-    func=write_temp_csv,
-    trigger=IntervalTrigger(seconds=5),
-    id='temp_1_job',
-    name='Reading temp on pin 4.',
-    replace_existing=True)
+#scheduler = BackgroundScheduler()
+#scheduler.start()
+#scheduler.add_job(
+#    func=write_temp_csv,
+#    trigger=IntervalTrigger(seconds=5),
+#    id='temp_1_job',
+#    name='Reading temp on pin 4.',
+#    replace_existing=True)
 # Shut down the scheduler when exiting the app
-atexit.register(lambda: scheduler.shutdown())
+#atexit.register(lambda: scheduler.shutdown())
