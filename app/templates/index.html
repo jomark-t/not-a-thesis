@@ -2,26 +2,24 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
-    {% if form %}
-    {{ wtf.quick_form(form) }}
-    <br>
-    {% endif %}
-    {% for post in posts %}
-        {% include '_post.html' %}
-    {% endfor %}
-    <nav aria-label="...">
-        <ul class="pager">
-            <li class="previous{% if not prev_url %} disabled{% endif %}">
-                <a href="{{ prev_url or '#' }}">
-                    <span aria-hidden="true">&larr;</span> Newer posts
-                </a>
-            </li>
-            <li class="next{% if not next_url %} disabled{% endif %}">
-                <a href="{{ next_url or '#' }}">
-                    Older posts <span aria-hidden="true">&rarr;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <div class="container">
+        <div class="jumbotron">
+        <h2>Web-based ADNU NOCS Data Center Environment Monitoring and Alarm System</h2>
+        <p>This is a web server dedicated to the Ateneo de Naga University (ADNU)
+        Network Operations and Computer Services (NOCS) Data Center for monitoring
+        the temperature and humidity of ambient area, detecting water and smoke occurences,
+        and watching the server room live using a camera that is also capable of panning
+        and tilting.</p>
+        </div>
+    </div>
+
+    <footer class="navbar">
+        <div class="container">
+        <div class="inverse">
+            <p class="text-muted">Copyright: 2017 |
+            Developed using <a href="https://www.raspberrypi.org/">Raspberry Pi</a>
+            and <a href="https://flask.pocoo.org/">Flask</a></p>
+        </div>
+        </div>
+    </footer>
 {% endblock %}

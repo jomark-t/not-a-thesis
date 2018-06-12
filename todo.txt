@@ -1,0 +1,28 @@
+Modules:
+
+[/] Login
+[/] Register
+[/] Dashboard
+[/] User list (CRUD)
+[/] Threshold
+    [/] Read
+    [/] Database
+[ ] Camera
+    [/] Tested
+    [ ] Tilting
+    [ ] Save to files
+    [ ] Web player
+    [ ] Database
+[ ] Temprature & Humdity Sensor
+    [/] Tested
+    [ ] Save to files
+    [ ] Automated creating and saving files
+    [ ] Database
+    [ ] Graph
+        [/] Tested
+        [ ] CSV
+[ ] Water Sensor
+    [ ] Tested
+[ ] Smoke
+    [ ] Tested
+[ ] Data Page (csv)
