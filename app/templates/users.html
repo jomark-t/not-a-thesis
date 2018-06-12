@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        REGISTERED USERS LIST
+
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-xs" style="float: right;">
+            Add Administrator
+        </a>
+      </div>
+      <div class="panel-body">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>User Type</th>
+                <th></th>
+            </tr>
+            </thead>
+        
+            <tbody>
+                {% for user in users%}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.user_type }}</td>
+                        <td>
+                            {% if current_user.id == user.id %}
+                                <button type="submit" class="btn btn-default btn-xs" disabled="true">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                            {% else %}
+                                <form method="post" action="{{ url_for('remove', id=user.id) }}">
+                                    <button type="submit" class="btn btn-danger btn-xs">
+                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>   
+                {% endfor %}   
+            </tbody>
+            
+        </table>
+      </div>
+    </div>
+{% endblock %}

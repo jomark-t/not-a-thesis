@@ -15,6 +15,7 @@ class User(UserMixin, db.Model):
 	username = db.Column(db.String(64), index=True, unique=True)
 	name = db.Column(db.String(120), index=True, unique=True)
 	email = db.Column(db.String(120), index=True, unique=True)
+	user_type = db.Column(db.String(120), index=True)
 	password_hash = db.Column(db.String(128))
 	posts = db.relationship('Post', backref='author', lazy='dynamic')
 	about_me = db.Column(db.String(140))
@@ -88,9 +89,10 @@ class SensorThreshold(db.Model):
 	temp = db.Column(db.String(140))
 	smoke = db.Column(db.String(140))
 	water = db.Column(db.String(140))
+	humid = db.Column(db.String(140))
 
 	def __repr__(self):
-		return '<Threshold (T/S/W) {}/{}/{}>'.format(self.temp, self.smoke, self.water)
+		return '<Threshold (T/S/W) {}/{}/{}>'.format(self.temp, self.smoke, self.water, self.humidity)
 
 class CSV(db.Model):
 	id = db.Column(db.Integer, primary_key=True)

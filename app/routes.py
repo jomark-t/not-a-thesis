@@ -1,8 +1,8 @@
 from flask import render_template, flash, redirect, url_for, request
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, EditThresholdForm
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User, Post
+from app.models import User, Post, SensorThreshold
 from werkzeug.urls import url_parse
 from datetime import datetime
 from app.email import send_password_reset_email
@@ -98,6 +98,24 @@ def logout():
 	logout_user()
 	return redirect(url_for('index'))
 
+@app.route('/users')
+@login_required
+def users():
+    if current_user.user_type != 'Admin':
+        return redirect(url_for('index'))
+
+    users = User.query.all()
+    return render_template('users.html', title='Users', users=users, current_user=current_user)
+
+@app.route('/delete/<int:id>', methods=['POST'])
+def remove(id):
+    user = User.query.get_or_404(id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('User successfully deleted!')
+    return redirect(url_for('users'))
+
+
 @app.route('/sensor')
 @login_required
 def sensor():
@@ -124,7 +142,7 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, name=form.name.data)
+        user = User(username=form.username.data, email=form.email.data, name=form.name.data, user_type='Guest')
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -136,6 +154,7 @@ def register():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
+    sensor_threshold = SensorThreshold.query.get(1)
     page = request.args.get('page', 1, type=int)
     posts = user.posts.order_by(Post.timestamp.desc()).paginate(
         page, app.config['POSTS_PER_PAGE'], False)
@@ -144,7 +163,7 @@ def user(username):
     prev_url = url_for('user', username=user.username, page=posts.prev_num) \
         if posts.has_prev else None
     return render_template('user.html', user=user, posts=posts.items,
-                           next_url=next_url, prev_url=prev_url)
+                           next_url=next_url, prev_url=prev_url, sensor_threshold=sensor_threshold, title='User Page')
 
 @app.before_request
 def before_request():
@@ -158,14 +177,40 @@ def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
         current_user.username = form.username.data
+        current_user.name = form.name.data
+        current_user.email = form.email.data
+        current_user.user_type = form.user_type.data
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('edit_profile'))
     elif request.method == 'GET':
         form.username.data = current_user.username
+        form.name.data = current_user.name
+        form.email.data = current_user.email
+        form.user_type.data = current_user.user_type
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', title='Edit Profile', form=form)
+
+@app.route('/edit_threshold', methods=['GET', 'POST'])
+@login_required
+def edit_threshold():
+    form = EditThresholdForm()
+    sensor_threshold = SensorThreshold.query.get(1)
+    if form.validate_on_submit():
+        sensor_threshold.temp = form.temp.data
+        sensor_threshold.water = form.water.data
+        sensor_threshold.smoke = form.smoke.data
+        sensor_threshold.humid = form.smoke.humid
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_threshold'))
+    elif request.method == 'GET':
+        form.temp.data = sensor_threshold.temp
+        form.water.data = sensor_threshold.water
+        form.smoke.data = sensor_threshold.smoke
+        form.humid.data = sensor_threshold.humid
+    return render_template('edit_threshold.html', title='Edit Threshold', form=form)
 
 @app.route('/follow/<username>')
 @login_required

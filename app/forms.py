@@ -28,14 +28,24 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
-    def validate_name(self, email):
+    def validate_name(self, name):
         user = User.query.filter_by(email=name.data).first()
         if user is not None:
             raise ValidationError('Name already registered. If you forgot your password, click Forgot Password in login page.')
 
 class EditProfileForm(FlaskForm):
-    username = StringField('username', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired()], render_kw={'readonly': True})
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired()])
+    user_type = StringField('Type', validators=[DataRequired()], render_kw={'readonly': True})
     about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Submit')
+
+class EditThresholdForm(FlaskForm):
+    temp = StringField('Temperature', validators=[DataRequired()])
+    water = StringField('Water Level', validators=[DataRequired()])
+    smoke =StringField('Smoke', validators=[DataRequired()])
+    humid =StringField('Humidity', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 class PostForm(FlaskForm):
