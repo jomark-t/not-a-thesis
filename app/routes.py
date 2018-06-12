@@ -34,47 +34,25 @@ def get_temp_humid(pin):
     
 
 def write_temp_csv():
-    temperature, humidity = get_temp_humid()
+    temperature, humidity = get_temp_humid('4')
     timeC = time.strftime("%I")+':' +time.strftime("%M")+':'+time.strftime("%S")
     data = [temperature, humidity, timeC]
 
-    #os.chmod(app.config['DATA_DIR'], 777)
     file_path = os.path.join(app.config['DATA_DIR'], 'temp_1.csv')
-    #print(file_path)
     with open(file_path, 'a') as output:
         writer_csv = csv.writer(output, delimiter=",", lineterminator = '\n')
         writer_csv.writerow(data)
 
-    #print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
 
 def get_csv():
-    file = open(os.path.join(app.config['DATA_DIR'], 'temp.csv'), 'r')
-    return list(csv.DictReader(file, fieldnames=None))
+    file_path = os.path.join(app.config['DATA_DIR'], 'temp_1.csv')
+    with open(file_path, 'r') as output:
+        return list(csv.reader(output, delimiter=','))
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    #form = PostForm()
-    #if form.validate_on_submit():
-        #language = guess_language(form.post.data)
-        #if language == 'UNKNOWN' or len(language) > 5:
-        #    language = ''
-        #post = Post(body=form.post.data, author=current_user)
-        #db.session.add(post)
-        #db.session.commit()
-        #flash('Your post is now live!')
-        #return redirect(url_for('index'))
-    #page = request.args.get('page', 1, type=int)
-    #posts = current_user.followed_posts().paginate(
-    #    page, app.config['POSTS_PER_PAGE'], False)
-    #next_url = url_for('index', page=posts.next_num) \
-    #    if posts.has_next else None
-    #prev_url = url_for('index', page=posts.prev_num) \
-    #    if posts.has_prev else None
-    #return render_template('index.html', title='Home', form=form,
-    #                       posts=posts.items, next_url=next_url,
-    #                       prev_url=prev_url)
     return render_template('index.html')
 
 
@@ -125,13 +103,18 @@ def sensor():
     s1_temp, s1_humid = get_temp_humid('4')
     s2_temp, s2_humid = get_temp_humid('1')
     s3_temp, s3_humid = get_temp_humid('2')
-    temp_labels = []
+    time = []
     temp_values = []
-    for result in temp_list:
-        temp_values.append(result['temp'])
-        temp_labels.append(result['t_time'])
+    humid_values = []
+    for result in temp_list[-20:]:
+        temp_values.append(result[0])
+        humid_values.append(result[1])
+        time.append(result[2])
 
-    return render_template('sensor.html', title='Sensor', s1_cur_temp=s1_temp, s1_cur_humid=s1_humid, s2_cur_temp=s2_temp, s2_cur_humid=s2_humid, s3_cur_temp=s3_temp, s3_cur_humid=s3_humid, values=temp_values, labels=temp_labels)
+    return render_template('sensor.html', title='Sensor', s1_cur_temp=s1_temp, s1_cur_humid=s1_humid, 
+        s2_cur_temp=s2_temp, s2_cur_humid=s2_humid, 
+        s3_cur_temp=s3_temp, s3_cur_humid=s3_humid, 
+        temp_values=temp_values, humid_values=humid_values, labels=time)
 
 @app.route('/csv')
 @login_required

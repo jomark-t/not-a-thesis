@@ -2,6 +2,7 @@
 {% block content %}
     <script type="text/javascript" src="{{ url_for('static', filename = 'Chart.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename = 'jquery-3.3.1.min.js') }}"></script>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles.css') }}">
     <div class="row">
         <div class="col-md-1">
         </div>
@@ -91,9 +92,31 @@
         var mychart = document.getElementById("chart_1").getContext("2d");
 
         new Chart(mychart, {
-           type: 'line',
-           labels: 'temp',
-           data: {
+            type: 'line',
+            data: {
+                datasets: [{
+                        label: 'Temperature',
+                        data: [{% for item in temp_values %}
+                                {{item}}, 
+                                {% endfor %}],
+                        backgroundColor: 'rgba(151,187,205,0.2)',
+                        borderColor: 'rgba(151,187,205,1)',
+                        pointBackgroundColor: 'rgba(151,187,205,1)'
+                    }, 
+                    {
+                      label: 'Humidity',
+                      data: [{% for item in humid_values %}
+                                {{item}}, 
+                                {% endfor %}],
+                      // Changes this dataset to become a line
+                      //type: 'line'
+                }],
+                labels: [{% for item in labels %}
+                            "{{item}}",
+                       {% endfor %}]
+            }
+           /*data: {
+
               labels: [{% for item in labels %}
                             "{{item}}",
                        {% endfor %}],
@@ -120,7 +143,7 @@
               animation: {
                 duration: 0
               }
-           }
+           }*/
         });
     </script>
 {% endblock %}
