@@ -136,7 +136,7 @@ def register(user_type):
             return redirect(url_for('users'))
         flash('Congratulations, you are now registered!')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html', title='Register', form=form, user_type=user_type)
 
 @app.route('/user/<username>')
 @login_required

@@ -6,8 +6,17 @@
         <div class="col-md-4">
         </div>
         <div class="col-md-4">
-            <h2>Register</h2>
-            {{ wtf.quick_form(form) }}
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    {% filter upper %}
+                        {{ user_type }} 
+                    {% endfilter %}
+                    - SIGN UP
+                </div>
+                <div class="panel-body">
+                    {{ wtf.quick_form(form) }}
+                </div>
+          </div>
         </div>
         <div class="col-md-4">
         </div>
