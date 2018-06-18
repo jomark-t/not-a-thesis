@@ -7,7 +7,6 @@
 {% endblock %}
 
 {% block navbar %}
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles.css') }}">
     <nav class="navbar navbar-default">
         <div class="container">
             <div class="navbar-header">
@@ -71,4 +70,11 @@
 {% block scripts %}
     {{ super() }}
     {{ moment.include_moment() }}
+{% endblock %}
+
+
+{% block styles %}
+    {{ super () }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dataTables.bootstrap.min.css') }}">
 {% endblock %}
