@@ -24,6 +24,7 @@
                     <!--<li><a href="{{ url_for('explore') }}">Explore</a></li>-->
                     {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('sensor') }}">Sensors</a></li>
+                    <li><a href="{{ url_for('camera') }}">Camera</a></li>
                     <li><a href="{{ url_for('csv_page') }}">Logs</a></li>
                     {% endif %}
                 </ul>

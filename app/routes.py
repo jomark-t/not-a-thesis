@@ -1,8 +1,8 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, send_from_directory
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, EditThresholdForm
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User, Post, SensorThreshold
+from app.models import User, Post, SensorThreshold, CSV
 from werkzeug.urls import url_parse
 from datetime import datetime
 from app.email import send_password_reset_email
@@ -44,8 +44,10 @@ def write_temp_csv():
         writer_csv.writerow(data)
 
 
-def get_csv():
-    file_path = os.path.join(app.config['DATA_DIR'], 'temp_1.csv')
+def get_csv(filename):
+    if filename is None:
+        filename = 'temp_1.csv'
+    file_path = os.path.join(app.config['DATA_DIR'], filename)
     with open(file_path, 'r') as output:
         return list(csv.reader(output, delimiter=','))
 
@@ -95,11 +97,14 @@ def remove(id):
     flash('User successfully deleted!')
     return redirect(url_for('users'))
 
+@app.route('/camera')
+def camera():
+    return render_template('camera.html', title='Camera')
 
 @app.route('/sensor')
 @login_required
 def sensor():
-    temp_list = get_csv()
+    temp_list = get_csv('20181306_Temperature_Humidity_Sensor1.csv')
     s1_temp, s1_humid = get_temp_humid('4')
     s2_temp, s2_humid = get_temp_humid('1')
     s3_temp, s3_humid = get_temp_humid('2')
@@ -119,7 +124,26 @@ def sensor():
 @app.route('/csv')
 @login_required
 def csv_page():
-    return render_template('csv.html', title='Sensor')
+    csv_data = CSV.query.all()
+    return render_template('csv.html', title='Data Logs', csv_data=csv_data)
+
+@app.route('/download/<path:filename>', methods=['GET', 'POST'])
+def download(filename):    
+    return send_from_directory(directory='data', filename=filename)
+
+@app.route('/csv/<path:filename>', methods=['GET', 'POST'])
+def populate_chart(filename):
+    csv_data = CSV.query.all()
+    temp_list = get_csv(filename)
+    time = []
+    temp_values = []
+    humid_values = []
+    for result in temp_list[-20:]:
+        temp_values.append(result[0])
+        humid_values.append(result[1])
+        time.append(result[2])
+    return render_template('csv.html', title='Data Logs', csv_data=csv_data, filename=filename,
+        temp_values=temp_values, humid_values=humid_values, labels=time)
 
 @app.route('/register/<string:user_type>', methods=['GET', 'POST'])
 def register(user_type):
