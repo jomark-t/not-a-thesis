@@ -1,4 +1,9 @@
-from flask import render_template, flash, redirect, url_for, request, send_from_directory
+"""
+If you encounter no module named flask_sqlalchemy after running install_packages.sh 
+just run this command "source venv/bin/activate"
+"""
+
+from flask import render_template, flash, redirect, url_for, request, send_from_directory, Response
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, EditThresholdForm
 from flask_login import current_user, login_user, logout_user, login_required
@@ -7,6 +12,7 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 from app.email import send_password_reset_email
 from collections import OrderedDict
+from importlib import import_module
 import os
 import time
 import atexit
@@ -17,6 +23,19 @@ import sys
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+
+if os.environ.get('CAMERA'):
+    Camera = import_module('camera_' + os.environ['CAMERA']).Camera
+else:
+    from camera import Camera
+
+from camera_pi import Camera
+
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 def get_temp_humid(pin):
     if pin == '4':
@@ -79,6 +98,15 @@ def login():
 def logout():
 	logout_user()
 	return redirect(url_for('index'))
+
+@app.route('/camera')
+def camera_page():
+    return render_template('camera.html', title='Live Feed')    
+
+@app.route('/live_feed')
+def video_feed():
+    return Response(gen(Camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/users')
 @login_required
